@@ -8,7 +8,6 @@ from .filters.handler import HandlerManager
 from .fsm import DisabledStorage, BaseStorage, FSMContext
 from ..types import EventType, Chat
 
-
 logger.remove()
 logger.add(sys.stdout,
            level='INFO',
@@ -17,9 +16,9 @@ logger.add(sys.stdout,
 
 
 class Dispatcher:
-    def __init__(self, vk, storage: typing.Optional[BaseStorage] = DisabledStorage()):
+    def __init__(self, vk, storage: typing.Optional[BaseStorage] = DisabledStorage(), latest_event:typing.Optional[int]=None):
         self._vk = vk
-        self._longpoll = LongPoll(vk)
+        self._longpoll = LongPoll(vk, latest_event)
         self._storage = storage
         self._handler_manager = HandlerManager()
         FSMContext(storage)
@@ -110,7 +109,6 @@ class Dispatcher:
             on_startup()
         try:
             for event in self._longpoll.listen():
-
                 if debug:
                     logger.info(event)
 
@@ -129,3 +127,7 @@ class Dispatcher:
                 return
 
             self._storage.close()
+            return self._longpoll.get_latest_event_id()
+
+    def get_latest_event_id(self):
+        return self._longpoll.get_latest_event_id()

@@ -13,10 +13,13 @@ class LongPoll:
 
     __DEFAULT_EVENT_CLASS = Event
 
-    def __init__(self, vk):
+    def __init__(self, vk, ts = None):
         self._vk = vk
         self._wait = 25
         self._key, self._server, self._ts = self._vk.groups_get_longpoll_server().values()
+
+        if ts is not None:
+            self._ts = ts
 
     def _update_longpoll(self, update_ts=True):
         response = self._vk.groups_get_longpoll_server()
@@ -57,3 +60,6 @@ class LongPoll:
                     yield event
             except ReadTimeout:
                 pass
+
+    def get_latest_event_id(self):
+        return self._ts
